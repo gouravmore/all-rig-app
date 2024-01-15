@@ -1,27 +1,32 @@
-name: ALL rig Deployment
+name: Deploy to S3
 
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    environment: all-dev-rig
 
     steps:
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v2
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: 14
 
-      - name: Build and Package Application
-        run: |
-          npm install
+      - name: Install Dependencies
+        run: npm install
 
-      - name: Build Production
+      - name: Build React App
         run: npm run build
+
+      - name: Deploy to S3
+        run: |
+          aws s3 sync build/ s3://your-s3-bucket-name
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
